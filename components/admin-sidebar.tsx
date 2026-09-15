@@ -16,6 +16,9 @@ import {
   Wrench,
   FileText,
   Settings,
+  Calendar,
+  Clock,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +29,10 @@ const NAV = [
   { href: "/admin/brands", label: "Brands", icon: Tag },
   { href: "/admin/attributes", label: "Attributes", icon: SlidersHorizontal },
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  { href: "/admin/bookings", label: "Bookings", icon: Calendar },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/staff", label: "Staff", icon: User },
+  { href: "/admin/availability", label: "Availability", icon: Clock },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/promotions", label: "Promotions", icon: Percent },
   { href: "/admin/media", label: "Media Library", icon: ImageIcon },
