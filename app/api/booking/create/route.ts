@@ -1,13 +1,15 @@
-"use server";
-
+import { NextRequest, NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase/booking";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { generateToken, hashToken } from "@/lib/utils";
+import { redirect } from "next/navigation";
 
-export async function createBooking(formData: FormData) {
+export async function POST(request: NextRequest) {
   const sb = getServiceClient();
-  if (!sb) redirect("/");
+  if (!sb) {
+    return NextResponse.json({ error: "Database not connected" }, { status: 500 });
+  }
+
+  const formData = await request.formData();
 
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
@@ -33,21 +35,23 @@ export async function createBooking(formData: FormData) {
     .eq("id", serviceId)
     .single();
 
-  if (!service) redirect("/");
+  if (!service) {
+    return NextResponse.json({ error: "Service not found" }, { status: 404 });
+  }
 
   const startsAtDate = new Date(startsAt);
   const endsAt = new Date(startsAtDate.getTime() + durationMinutes * 60000);
 
-  const { data: customer } = await sb
+  // Create or update customer
+  const { data: existingCustomer } = await sb
     .from("meridian_customers")
     .select("id")
     .eq("email", customerEmail)
     .single();
 
-  let customerId;
-  if (customer) {
-    customerId = customer.id;
-    // Update customer info
+  let customerId: string;
+  if (existingCustomer) {
+    customerId = existingCustomer.id;
     await sb
       .from("meridian_customers")
       .update({
@@ -58,7 +62,6 @@ export async function createBooking(formData: FormData) {
       })
       .eq("id", customerId);
   } else {
-    // Create new customer
     const { data: newCustomer } = await sb
       .from("meridian_customers")
       .insert({
@@ -96,85 +99,8 @@ export async function createBooking(formData: FormData) {
 
   if (error) {
     console.error("Booking error:", error);
-    redirect("/");
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Create booking answers for custom fields
-  if (subject) {
-    await sb.from("meridian_booking_answers").insert({
-      booking_id: booking.id,
-      field_key: "subject",
-      value: subject,
-    });
-  }
-
-  revalidatePath("/book");
-  redirect(`/b/${token}?confirmed=true`);
-}
-
-export async function cancelBooking(formData: FormData) {
-  const sb = getServiceClient();
-  if (!sb) redirect("/");
-
-  const bookingId = formData.get("booking_id") as string;
-  const token = formData.get("token") as string;
-
-  const { error } = await sb
-    .from("meridian_bookings")
-    .update({
-      status: "cancelled",
-      cancelled_at: new Date().toISOString(),
-      cancelled_by: "customer",
-    })
-    .eq("id", bookingId);
-
-  if (error) {
-    console.error("Cancel error:", error);
-  }
-
-  revalidatePath(`/b/${token}`);
-  redirect(`/b/${token}`);
-}
-
-export async function rescheduleBooking(formData: FormData) {
-  const sb = getServiceClient();
-  if (!sb) redirect("/");
-
-  const bookingId = formData.get("booking_id") as string;
-  const token = formData.get("token") as string;
-  const newStartsAt = formData.get("new_starts_at") as string;
-
-  if (!newStartsAt) {
-    redirect(`/b/${token}`);
-  }
-
-  // Get the booking (we already know its duration — no join needed)
-  const { data: booking } = await sb
-    .from("meridian_bookings")
-    .select("duration_minutes")
-    .eq("id", bookingId)
-    .single();
-
-  if (!booking) {
-    redirect(`/b/${token}`);
-  }
-
-  const startsAt = new Date(newStartsAt);
-  const endsAt = new Date(startsAt.getTime() + booking.duration_minutes * 60000);
-
-  const { error } = await sb
-    .from("meridian_bookings")
-    .update({
-      starts_at: startsAt.toISOString(),
-      ends_at: endsAt.toISOString(),
-      status: "confirmed",
-    })
-    .eq("id", bookingId);
-
-  if (error) {
-    console.error("Reschedule error:", error);
-  }
-
-  revalidatePath(`/b/${token}`);
-  redirect(`/b/${token}`);
+  redirect(`/book/confirmation?token=${token}`);
 }

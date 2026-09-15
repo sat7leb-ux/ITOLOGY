@@ -200,5 +200,7 @@ export type MeridianOrganization = {
 
 export type Booking = MeridianBooking;
 export type Staff = MeridianStaff;
-export type Service = MeridianService;
 export type Schedule = MeridianSchedule;
+
+/** @deprecated Use MeridianService instead */
+export type MeridianServiceAlias = MeridianService;
