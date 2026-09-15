@@ -151,6 +151,18 @@ export function SiteHeader() {
               </div>
             </div>
 
+            <Link
+              href="/book"
+              className={cn(
+                "px-4 py-2 rounded-md transition",
+                pathname?.startsWith("/book")
+                  ? "text-jade-light bg-white/5"
+                  : "text-text-onDark/80 hover:text-jade-light hover:bg-white/5"
+              )}
+            >
+              Book
+            </Link>
+
             <div className="group relative">
               <Link
                 href="/services"
@@ -252,6 +264,13 @@ export function SiteHeader() {
                 className="block px-4 py-3 text-text-onDark hover:bg-white/5 rounded-md"
               >
                 Services
+              </Link>
+              <Link
+                href="/book"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3 text-text-onDark hover:bg-white/5 rounded-md"
+              >
+                Book
               </Link>
               <Link
                 href="/brands"

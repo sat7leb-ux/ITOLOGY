@@ -254,11 +254,11 @@ export default async function HomePage() {
         <div className="container-page">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-text-primary">IT services</h2>
-              <p className="mt-1 text-text-muted">Hardware is half the job. We install, secure, and support.</p>
+              <h2 className="text-2xl font-bold text-text-primary">Book a consultation</h2>
+              <p className="mt-1 text-text-muted">Pick a time that works for you</p>
             </div>
             <Link
-              href="/services"
+              href="/book"
               className="hidden sm:flex items-center gap-1 text-sm text-jade-dark font-medium hover:text-jade transition"
             >
               All services
@@ -272,7 +272,7 @@ export default async function HomePage() {
               return (
                 <Link
                   key={service.slug}
-                  href={`/services/${service.slug}`}
+                  href={`/book/${service.slug}`}
                   className="group flex items-start gap-4 p-5 rounded-xl border border-line bg-paper/50 hover:border-jade hover:bg-white hover:shadow-card-hover transition-all duration-300"
                 >
                   <div className="w-11 h-11 rounded-lg bg-jade/10 flex items-center justify-center shrink-0 group-hover:bg-jade group-hover:text-white transition-all">

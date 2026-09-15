@@ -37,15 +37,17 @@ export async function getFeaturedProducts(limit = 8): Promise<Product[]> {
   return (data ?? []) as unknown as Product[];
 }
 
-export async function getServices(): Promise<Service[]> {
+export async function getServices() {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("services")
+    .from("meridian_services")
     .select("*")
+    .eq("is_published", true)
+    .eq("is_active", true)
     .order("sort_order");
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as unknown as Service[];
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {

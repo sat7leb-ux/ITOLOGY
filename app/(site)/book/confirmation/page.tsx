@@ -14,7 +14,7 @@ async function getBooking(token: string) {
   // For now, just get the most recent booking
   const { data } = await sb
     .from("meridian_bookings")
-    .select("*, meridian_services(name, duration_minutes, price_cents, currency, meeting_methods, default_method), meridian_staff(display_name, title)")
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(1)
     .single();
@@ -55,7 +55,7 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-text-muted">Service</span>
-                <span className="font-medium">{(booking as any).meridian_services?.name ?? "IT Consultation"}</span>
+                <span className="font-medium">{booking.service_name ?? "IT Consultation"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-text-muted">Date</span>
@@ -73,13 +73,13 @@ export default async function ConfirmationPage({ searchParams }: PageProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-text-muted">Method</span>
-                <span className="font-medium">{(booking as any).meridian_services?.default_method ?? "Video call"}</span>
+                <span className="font-medium">{booking.meeting_method ?? "Video call"}</span>
               </div>
-              {(booking as any).meridian_services?.price_cents > 0 && (
+              {booking.price_cents > 0 && (
                 <div className="flex justify-between">
                   <span className="text-text-muted">Price</span>
                   <span className="tabular font-semibold text-jade">
-                    ${((booking as any).meridian_services?.price_cents / 100).toFixed(2)}
+                    ${((booking.price_cents ?? 0) / 100).toFixed(2)}
                   </span>
                 </div>
               )}

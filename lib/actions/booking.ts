@@ -35,6 +35,13 @@ export async function createBooking(formData: FormData) {
 
   if (!service) redirect("/");
 
+  // Get staff name for denormalized storage
+  const { data: staffMember } = await sb
+    .from("meridian_staff")
+    .select("display_name")
+    .eq("id", staffId)
+    .single();
+
   const startsAtDate = new Date(startsAt);
   const endsAt = new Date(startsAtDate.getTime() + durationMinutes * 60000);
 
@@ -90,6 +97,10 @@ export async function createBooking(formData: FormData) {
       staff_timezone: staffTimezone,
       notes: notes || null,
       token_hash: tokenHash,
+      service_name: service.name,
+      staff_name: staffMember?.display_name || null,
+      price_cents: service.price_cents,
+      currency: service.currency,
     })
     .select("*")
     .single();
